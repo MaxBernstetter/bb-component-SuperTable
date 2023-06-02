@@ -75,33 +75,47 @@ export const createSuperTableThemeStore = () => {
 // so the can be centrally applied to the dataProvider by the Super Table
 export const createSuperTableFilterStore = () => {
 	const { set, update, subscribe } = writable({
-		filters: [],
-		showFilters: false
-	})
-
+	  filters: [],
+	  showFilters: false,
+	});
+  
 	return {
-		subscribe,
-		setFilter(filter) {
-			update(state => {
-				let indx = state.filters.findIndex(v => v.id === filter.id)
-				if (indx > -1) {
-					state.filters[indx] = filter
-				} else {
-					state.filters = [...state.filters, filter]
-				}
-				return state;
-			});
-		},
-		clearFilter(filter) {
-			console.log("Clear!")
-			update(state => {
-				let indx = state.filters.findIndex(v => v.id === filter.id)
-				state.filters.splice(indx, indx >= 0 ? 1 : 0);
-				return state;
-			})
-		}
-	}
-}
+	  subscribe,
+	  setFilter(filter) {
+		update((state) => {
+		  const index = state.filters.findIndex(
+			(v) => v.id === filter.id
+		  );
+		  
+		  // Convert the filter value and data to lowercase for case-insensitive matching
+		  const lowercaseValue = filter.value.toLowerCase();
+		  const filteredData = state.filters.filter((v) =>
+			v.value.toLowerCase().includes(lowercaseValue)
+		  );
+  
+		  if (index > -1) {
+			state.filters[index] = filter;
+		  } else {
+			state.filters.push(filter);
+		  }
+  
+		  // Update the filtered data with the new filter
+		  state.filteredData = filteredData;
+		  
+		  return state;
+		});
+	  },
+	  clearFilter(filter) {
+		update((state) => {
+		  const index = state.filters.findIndex(
+			(v) => v.id === filter.id
+		  );
+		  state.filters.splice(index, index >= 0 ? 1 : 0);
+		  return state;
+		});
+	  },
+	};
+  };
 
 
 // The main store holds the data related and Super Table Columns registration and data synchronization
